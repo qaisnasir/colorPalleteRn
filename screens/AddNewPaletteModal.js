@@ -164,37 +164,34 @@ const AddNewPaletteModal = ({ navigation }) => {
   const [name, setName] = useState('');
   const [selectedColors, setSelectedColors] = useState([]);
 
-  
 
-  const handleSubmit = useCallback(() => {
-    if (!name) {
-      Alert.alert('Please add a name to your color palette');
-    } else {
-      const newPalette={
-        name,
-        colors: selectedColors,
-    };
-      navigation.navigate(Home, {
-      newPalette
-    });     
-    }}, [name, selectedColors]);
-
-
-
-  const handleUpdate = useCallback(
+   const handleUpdate = useCallback(
     (color, newValue) => {
       if (newValue === true) {
         setSelectedColors(current => [...current, color]);
-      } 
-      else if (selectedColors.length < 3) {
-        Alert.alert("Please enter at least 3 Colors :")
-      }      
-      else {
-        setSelectedColors(current =>current.filter(selectedColor => color.colorName===selectedColor.colorName))
+      } else {
+        setSelectedColors(current =>
+          current.filter(c => c.colorName !== color.colorName),
+        );
       }
     },
     [selectedColors, setSelectedColors],
   );
+
+  
+  const handleSubmit = useCallback(() => {
+    if (!name) {
+      Alert.alert('Please add a name to your color palette');
+    } 
+    else if (selectedColors.length < 3) {
+      Alert.alert("Please enter at least 3 Colors :")
+    } 
+    else{
+      navigation.navigate('Home', {
+      newPalette :{paletteName: name, colors: selectedColors}
+    });     
+    }}, [name, selectedColors]);
+
 
 
   return (  
@@ -211,15 +208,15 @@ const AddNewPaletteModal = ({ navigation }) => {
         data={COLORS}
         keyExtractor={item => item.colorName}
         renderItem={({ item }) => (
-          <View style={styles.color}>
+          <View style={styles.switch}>
             <Text>{item.colorName}</Text>
             <Switch
               value={
                 !!selectedColors.find(
-                  color => color.colorName !== item.colorName
+                  color => color.colorName === item.colorName
                 )
               }
-              onValueChange={newValue => {handleUpdate(item, newValue)}}
+              onValueChange={newValue => handleUpdate(item, newValue)}
             />
           </View>
         )}
