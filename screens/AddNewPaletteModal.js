@@ -164,52 +164,62 @@ const AddNewPaletteModal = ({ navigation }) => {
   const [name, setName] = useState('');
   const [selectedColors, setSelectedColors] = useState([]);
 
+  
+
+  const handleSubmit = useCallback(() => {
+    if (!name) {
+      Alert.alert('Please add a name to your color palette');
+    } else {
+      const newPalette={
+        name,
+        colors: selectedColors,
+    };
+      navigation.navigate(Home, {
+      newPalette
+    });     
+    }}, [name, selectedColors]);
+
+
+
   const handleUpdate = useCallback(
     (color, newValue) => {
       if (newValue === true) {
         setSelectedColors(current => [...current, color]);
-      } else {
-        setSelectedColors(current =>
-          current.filter(c => c.colorName !== color.colorName),
-        );
+      } 
+      else if (selectedColors.length < 3) {
+        Alert.alert("Please enter at least 3 Colors :")
+      }      
+      else {
+        setSelectedColors(current =>current.filter(selectedColor => color.colorName===selectedColor.colorName))
       }
     },
     [selectedColors, setSelectedColors],
   );
 
-  const handleSubmit = useCallback(() => {
-    if (!name) {
-      Alert.alert('Please add a name to your color palette');
-    } else if (selectedColors.length < 3) {
-      Alert.alert('Please choose at least 3 colors');
-    } else {
-      navigation.navigate('Home', {
-        newPalette: { paletteName: name, colors: selectedColors },
-      });
-    }
-  }, [name, selectedColors]);
-  return (
-    <View>
-      <Text>  Hello, world!</Text>
+
+  return (  
     <View style={styles.container}>
       <View style={styles.heading}>
         <Text>Name of your color palette</Text>
-        <TextInput style={styles.input} value={name} onChangeText={setName} />
-      </View>
+        </View>
+        
+        <TextInput style={styles.input} value={name} onChangeText={setName}
+        placeholder="Palete Name" />
+      
       <FlatList
         style={styles.list}
         data={COLORS}
         keyExtractor={item => item.colorName}
         renderItem={({ item }) => (
-          <View style={styles.switch}>
+          <View style={styles.color}>
             <Text>{item.colorName}</Text>
             <Switch
               value={
                 !!selectedColors.find(
-                  color => color.colorName === item.colorName,
+                  color => color.colorName !== item.colorName
                 )
               }
-              onValueChange={newValue => handleUpdate(item, newValue)}
+              onValueChange={newValue => {handleUpdate(item, newValue)}}
             />
           </View>
         )}
@@ -219,14 +229,13 @@ const AddNewPaletteModal = ({ navigation }) => {
           <Text style={styles.buttonText}>Submit!</Text>
         </View>
       </TouchableOpacity>
-    </View>
-    </View>
-  );
-  
+    </View> 
+  ); 
 };
 
 const styles = StyleSheet.create({
     container: {
+      padding:5,
       backgroundColor: 'white',
       flex: 1,
     },
@@ -237,6 +246,7 @@ const styles = StyleSheet.create({
       marginVertical: 10,
       borderRadius: 5,
       fontSize: 18,
+      marginBottom: 30
     },
     switch: {
       flexDirection: 'row',
@@ -259,7 +269,6 @@ const styles = StyleSheet.create({
     },
     button: {
       height: 40,
-      marginTop:60,
       backgroundColor: 'teal',
       borderRadius: 5,
       justifyContent: 'center',
@@ -269,6 +278,17 @@ const styles = StyleSheet.create({
       color: 'white',
       fontWeight: 'bold',
     },
+    name :{
+      marginBottom: 10
+    },
+    color :{
+       flexDirection : 'row',
+       justifyContent : 'space-between',
+       alignItems : 'center',
+       padding : 10,
+       borderBottomWidth : 1,
+       borderBottomColor : 'grey',
+    }
   });
 
   export default AddNewPaletteModal;
